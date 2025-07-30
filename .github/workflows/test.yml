@@ -1,1 +1,33 @@
+name: Auto PR and Merge to Main
 
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'dev'
+      - 'release/**'
+      - 'test'
+
+jobs:
+  auto-pr-merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up GitHub CLI
+        uses: cli/cli-action@v2
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+
+      - name: Create Pull Request to main
+        run: |
+          gh pr create --base main --head ${{ github.ref_name }} --title "Auto PR: ${{ github.ref_name }}" --body "Automated PR from ${{ github.ref_name }}" || echo "PR already exists"
+
+      - name: Auto-merge Pull Request
+        run: |
+          pr_url=$(gh pr list --head ${{ github.ref_name }} --state open --json url -q '.[0].url')
+          if [ -n "$pr_url" ]; then
+            gh pr merge "$pr_url" --auto --squash
+          fi
