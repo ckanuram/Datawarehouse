@@ -13,19 +13,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout the repo
         uses: actions/checkout@v4
 
       - name: Set up GitHub CLI
-        uses: cli/cli-action@v2
-        with:
-          github_token: ${{ secrets.GH_TOKEN }}
+        uses: actions/setup-gh@v1
+
+      - name: Authenticate GitHub CLI
+        run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
 
       - name: Create Pull Request to main
         run: |
           gh pr create --base main --head ${{ github.ref_name }} --title "Auto PR: ${{ github.ref_name }}" --body "Automated PR from ${{ github.ref_name }}" || echo "PR already exists"
 
-      - name: Auto-merge Pull Request
+      - name: Auto-merge the PR
         run: |
           pr_url=$(gh pr list --head ${{ github.ref_name }} --state open --json url -q '.[0].url')
           if [ -n "$pr_url" ]; then
