@@ -1,0 +1,9 @@
+CREATE TABLE [dbo].[Table1] (
+    [Id] INT IDENTITY (1, 1) NOT NULL
+);
+GO
+
+ALTER TABLE [dbo].[Table1]
+    ADD CONSTRAINT [PK_Table1] PRIMARY KEY CLUSTERED ([Id] ASC);
+GO
+
